@@ -512,6 +512,11 @@ class RadixCache(BasePrefixCache):
         if self.disable:
             return
 
+        # In deterministic mode, also skip unfinished insertion so the tree
+        # state is independent of inter-request scheduling order. See #22819.
+        if self.disable_finished_insert:
+            return
+
         token_ids = req.fill_ids
         kv_indices = self.req_to_token_pool.req_to_token[
             req.req_pool_idx, : len(token_ids)
